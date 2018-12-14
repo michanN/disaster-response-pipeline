@@ -23,11 +23,45 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
-    pass
+    '''
+    Cleans the merges dataframe so it can be used inside the ML pipeline.
+
+    INPUT:
+        df (dataframe): The merged dataframe from messages and categories.
+
+    OUTPUT:
+        df (dataframe): Cleaned dataframe.
+    '''
+    categories = df['categories'].str.split(pat=';', expand=True)
+    row = categories.iloc[0]
+    category_colnames = list(row.apply(lambda x: x[:-2]))
+    categories.columns = category_colnames
+
+    for column in categories:
+        categories[column] = categories[column].apply(lambda x: x[-1])
+        categories[column] = pd.to_numeric(categories[column])
+
+    df.drop('categories', axis=1, inplace=True)
+    df = pd.concat([df, categories], axis=1)
+
+    # delete rows where related == 2
+    df.query('related != 2', inplace=True)
+
+    df.drop_duplicates(subset='id', inplace=True)
+
+    return df
 
 
 def save_data(df, database_filename):
-    pass
+    '''
+    Saves cleaned df to sqlite database.
+
+    INPUT:
+        df (dataframe): The dataframe to save.
+        database_filename (string): Path to database.
+    '''
+    engine = create_engine('sqlite:///' + database_filename)
+    df.to_sql('DisasterMessages', engine, index=False, if_exists='replace')
 
 
 def main():
