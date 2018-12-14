@@ -14,6 +14,11 @@ import sys
 import pandas as pd
 import numpy as np
 import pickle
+import re
+
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('punkt')
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -41,19 +46,87 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
-    pass
+    '''
+    Normalizes text by removing special characters, converts to lower, removes stop words
+    and lemmatize words.
+
+    INPUT:
+        text (string): Text to normalize.
+
+    OUTPUT 
+        words (list): List of tokens.
+    '''
+    stop_words = stopwords.words("english")
+    lemmatizer = WordNetLemmatizer()
+
+    text = re.sub(r"[^a-zA-z0-9]", " ", text.lower())
+
+    words = word_tokenize(text)
+
+    words = [lemmatizer.lemmatize(word, pos='v').strip()
+             for word in words if word not in stop_words]
+
+    return words
 
 
 def build_model():
-    pass
+    '''
+    Creates a ML pipeline using CountVectorizer, TFIDF, LinearSVD
+    and runs GridSearchCV.
+
+    OUTPUT:
+        cv_pipeline (gridsearchcv): Result of GridSearchCV
+    '''
+    pipeline = Pipeline([
+        ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('clf', OneVsRestClassifier(LinearSVC(random_state=12), n_jobs=-1))
+    ])
+
+    parameters = {
+        'tfidf__smooth_idf': [True, False],
+        'clf__estimator__C': [1, 2, 5]
+    }
+
+    cv_pipeline = GridSearchCV(estimator=pipeline, param_grid=parameters,
+                               scoring='f1_micro', verbose=3, n_jobs=-1)
+
+    return cv_pipeline
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+    '''
+    Evaluate model performance using the test data.
+
+    INPUT:
+        model (gridsearchcv): Model to be evaluated.
+        X_test (ndarray): The test data - features.
+        Y_test (ndarray): The true labels for test data.
+        category_names (list): Labels for the categories.
+
+    OUTPUT 
+        Print metrics (accuracy, precision, recall and f1-score).
+    '''
+    y_pred = model.predict(X_test)
+
+    for i, category in enumerate(category_names):
+        accuracy = accuracy_score(Y_test[:, i], y_pred[:, i])
+        precision, recall, fscore, _ = score(
+            Y_test[:, i], y_pred[:, i], average='micro')
+        print('Category: {:<22} Acc: {:<8.2%} | Precision: {:<8.2%} | Recall: {:<8.2%} | Fscore: {:.2%}'.format(
+            category, accuracy, precision, recall, fscore))
 
 
 def save_model(model, model_filepath):
-    pass
+    '''
+    Saves model as a pickle file.
+
+    INPUT:
+        model (): Model to be saved.
+        model_filepath (string): Path to save location.
+    '''
+    with open(model_filepath, 'wb') as file:
+        pickle.dump(model, file)
 
 
 def main():
