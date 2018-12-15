@@ -3,3 +3,12 @@
 
 #
 *.pyc
+
+# vscode folder
+.vscode/
+
+# db files
+*.db
+
+# saved models
+*.pkl
