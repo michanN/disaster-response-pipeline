@@ -79,7 +79,7 @@ def index():
             'layout': {
                 'title': 'Top Five Categories',
                 'yaxis': {
-                    'title': "Fractions"
+                    'title': "Percentage"
                 },
                 'xaxis': {
                     'title': "Categories"

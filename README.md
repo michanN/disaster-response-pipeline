@@ -11,7 +11,7 @@
 
 
 ## Installation <a name="installation"></a>
-The only external library necessary to run this code, beyond the Anaconda distribution of Python, is NLTK [stopwords, punkt, wordnet].
+The only external library necessary to run this code, beyond the Anaconda distribution of Python, are NLTK [stopwords, punkt, wordnet] and Plotly.
 
 ## Project Motivation <a name="motivation"></a>
 The purpose of this project is to apply data engineering, NLP and machine learning processes to create a model that can analyze and classify disaster message data from Figure Eight. Depending on the classification (multilabel) of the message it could be sent to the appropriate disaster relief agencies.
@@ -25,15 +25,17 @@ Project structure and file description below:
 | |- go.html  # classification result page of web app
 |- run.py  # flask file that runs app
 
+- assets
+|- index.png
+|- example.png
+
 - data
 |- disaster_categories.csv  # dataset including all the categories 
 |- disaster_messages.csv  # dataset including all the nessages
 |- process_data.py # file includes ETL pipeline
-|- DisasterResponse.db   # database to save clean data to
 
 - models
 |- train_classifier.py # train ML model
-|- classifier.pkl  # saved model 
 
 - README.md
 ```
@@ -53,7 +55,13 @@ Project structure and file description below:
 
 ## Example Usage<a name="usage"></a>
 
-Phrased used `We have a lot of problem at Delma 75 Avenue Albert Jode, those people need water and food.`
+Index page:
+
+![](assets/index.png)
+
+Message classification: `We need food, water and shelter.`
+
+![](assets/example.png)
 
 ## Licensing, Authors, Acknowledgements<a name="licensing"></a>
 Credits to Udacity for the project/starter code and Figure Eight for the dataset.
